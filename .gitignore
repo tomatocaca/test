@@ -1,0 +1,19 @@
+# IDE
+.vscode/
+.idea/
+*.sublime-*
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor temp
+*~
+*.bak
+
+# Project specific
+node_modules/
+dist/
