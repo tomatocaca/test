@@ -41,12 +41,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 16px;
-      padding: 20px;
+      gap: 12px;
+      padding: 16px;
     }
 
     .game-title {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 700;
       background: linear-gradient(90deg, #00f5a0, #00d9f5, #f5a0ff);
       background-size: 200% 100%;
@@ -55,7 +55,6 @@
       background-clip: text;
       animation: titleShine 3s ease-in-out infinite;
       letter-spacing: 4px;
-      text-shadow: none;
       filter: drop-shadow(0 0 20px rgba(0, 245, 160, 0.3));
     }
 
@@ -66,58 +65,89 @@
 
     .info-bar {
       display: flex;
-      gap: 20px;
+      gap: 12px;
       background: rgba(255, 255, 255, 0.08);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 16px;
-      padding: 12px 28px;
+      border-radius: 14px;
+      padding: 10px 20px;
       width: 100%;
       max-width: 540px;
       justify-content: space-between;
+      align-items: center;
     }
 
     .info-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       color: rgba(255, 255, 255, 0.9);
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 500;
     }
 
     .info-item .label {
-      color: rgba(255, 255, 255, 0.5);
+      color: rgba(255, 255, 255, 0.45);
       font-weight: 400;
-      font-size: 13px;
+      font-size: 12px;
     }
 
     .info-item .value {
       color: #00f5a0;
       font-weight: 600;
-      font-size: 20px;
-      min-width: 40px;
+      font-size: 18px;
+      min-width: 32px;
       text-align: right;
     }
 
-    .info-item .value.high-score {
-      color: #f5d300;
+    .info-item .value.high-score { color: #f5d300; }
+    .info-item .value.timer { color: #00d9f5; }
+    .info-item .value.mode-tag {
+      font-size: 11px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 2px 10px;
+      min-width: auto;
+      color: rgba(255,255,255,0.7);
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
-
-    .info-item .value.timer {
-      color: #00d9f5;
+    .info-item .value.level-tag {
+      font-size: 11px;
+      background: rgba(245, 211, 0, 0.15);
+      border-radius: 10px;
+      padding: 2px 10px;
+      min-width: auto;
+      color: #f5d300;
     }
 
     .canvas-container {
       position: relative;
-      border-radius: 20px;
+      border-radius: 18px;
       overflow: hidden;
       box-shadow:
         0 0 40px rgba(0, 245, 160, 0.15),
         0 0 80px rgba(0, 217, 245, 0.08),
         inset 0 0 60px rgba(0, 0, 0, 0.3);
       border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .canvas-container .wrap-indicator {
+      display: none;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 48px;
+      color: #00d9f5;
+      opacity: 0;
+      transition: all 0.3s ease;
+      pointer-events: none;
+    }
+
+    .canvas-container .wrap-indicator.show {
+      opacity: 0.6;
     }
 
     #gameCanvas {
@@ -130,17 +160,17 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 24px;
-      color: rgba(255, 255, 255, 0.4);
-      font-size: 13px;
+      gap: 20px;
+      color: rgba(255, 255, 255, 0.35);
+      font-size: 12px;
       font-weight: 400;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
     .key-group {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
     }
 
     .key-badge {
@@ -149,17 +179,17 @@
       justify-content: center;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 6px;
-      padding: 3px 10px;
-      font-size: 12px;
+      border-radius: 5px;
+      padding: 2px 8px;
+      font-size: 11px;
       font-weight: 600;
-      color: rgba(255, 255, 255, 0.6);
+      color: rgba(255, 255, 255, 0.55);
       font-family: 'Fredoka', sans-serif;
-      min-width: 28px;
+      min-width: 24px;
     }
 
     .key-badge.space {
-      padding: 3px 18px;
+      padding: 2px 14px;
     }
 
     .key-badge.accent {
@@ -169,7 +199,7 @@
 
     .hint-divider {
       width: 1px;
-      height: 20px;
+      height: 18px;
       background: rgba(255, 255, 255, 0.1);
     }
 
@@ -186,7 +216,7 @@
       z-index: 100;
       opacity: 0;
       pointer-events: none;
-      transition: opacity 0.5s ease;
+      transition: opacity 0.4s ease;
     }
 
     .modal-overlay.active {
@@ -200,7 +230,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background: rgba(0, 0, 0, 0.4);
+      background: rgba(0, 0, 0, 0.35);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
     }
@@ -211,14 +241,14 @@
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 28px;
-      padding: 48px 40px 40px;
+      border-radius: 24px;
+      padding: 40px 36px 32px;
       text-align: center;
-      max-width: 420px;
+      max-width: 400px;
       width: 90%;
       transform: scale(0.85) translateY(20px);
       opacity: 0;
-      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      transition: all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1);
       box-shadow:
         0 0 60px rgba(0, 245, 160, 0.1),
         0 20px 60px rgba(0, 0, 0, 0.3);
@@ -230,16 +260,16 @@
     }
 
     .modal-icon {
-      font-size: 56px;
-      margin-bottom: 16px;
+      font-size: 48px;
+      margin-bottom: 10px;
       display: block;
     }
 
     .modal-title {
-      font-size: 36px;
+      font-size: 32px;
       font-weight: 700;
       color: #fff;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       background: linear-gradient(90deg, #00f5a0, #00d9f5);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -247,30 +277,82 @@
     }
 
     .modal-subtitle {
-      font-size: 16px;
-      color: rgba(255, 255, 255, 0.6);
-      margin-bottom: 28px;
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.55);
+      margin-bottom: 24px;
       font-weight: 400;
       line-height: 1.5;
     }
 
+    /* Mode selector */
+    .mode-selector {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+
+    .mode-option {
+      flex: 1;
+      max-width: 110px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 2px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      text-align: center;
+    }
+
+    .mode-option:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateY(-2px);
+    }
+
+    .mode-option.selected {
+      border-color: #00f5a0;
+      background: rgba(0, 245, 160, 0.08);
+      box-shadow: 0 0 20px rgba(0, 245, 160, 0.1);
+    }
+
+    .mode-option .mode-icon {
+      font-size: 28px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .mode-option .mode-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.8);
+      display: block;
+    }
+
+    .mode-option .mode-desc {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.35);
+      display: block;
+      margin-top: 2px;
+      line-height: 1.3;
+    }
+
     .modal-stats {
       display: flex;
-      gap: 20px;
+      gap: 16px;
       justify-content: center;
-      margin-bottom: 32px;
+      margin-bottom: 28px;
     }
 
     .modal-stat {
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 14px;
-      padding: 14px 24px;
-      min-width: 110px;
+      border-radius: 12px;
+      padding: 12px 20px;
+      min-width: 90px;
     }
 
     .modal-stat .stat-label {
-      font-size: 12px;
+      font-size: 11px;
       color: rgba(255, 255, 255, 0.4);
       text-transform: uppercase;
       letter-spacing: 1px;
@@ -278,23 +360,15 @@
     }
 
     .modal-stat .stat-value {
-      font-size: 28px;
+      font-size: 26px;
       font-weight: 700;
       color: #fff;
       margin-top: 4px;
     }
 
-    .modal-stat .stat-value.score {
-      color: #00f5a0;
-    }
-
-    .modal-stat .stat-value.best {
-      color: #f5d300;
-    }
-
-    .modal-stat .stat-value.duration {
-      color: #00d9f5;
-    }
+    .modal-stat .stat-value.score { color: #00f5a0; }
+    .modal-stat .stat-value.best { color: #f5d300; }
+    .modal-stat .stat-value.duration { color: #00d9f5; }
 
     .btn-primary {
       display: inline-flex;
@@ -302,10 +376,10 @@
       gap: 8px;
       background: linear-gradient(135deg, #00f5a0, #00d9f5);
       border: none;
-      border-radius: 14px;
-      padding: 14px 40px;
+      border-radius: 12px;
+      padding: 12px 36px;
       font-family: 'Fredoka', sans-serif;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 600;
       color: #0f0c29;
       cursor: pointer;
@@ -323,9 +397,9 @@
     }
 
     .start-hint {
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.35);
-      margin-top: 16px;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.3);
+      margin-top: 12px;
       font-weight: 400;
     }
 
@@ -334,74 +408,44 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 4px;
-      padding: 1px 8px;
+      padding: 1px 7px;
       font-family: 'Fredoka', sans-serif;
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.5);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.45);
+    }
+
+    .level-up-badge {
+      display: inline-block;
+      background: rgba(245, 211, 0, 0.2);
+      border: 1px solid rgba(245, 211, 0, 0.3);
+      border-radius: 8px;
+      padding: 4px 14px;
+      font-size: 12px;
+      color: #f5d300;
+      font-weight: 500;
+      margin-top: 8px;
     }
 
     @media (max-width: 600px) {
-      .game-wrapper {
-        padding: 12px;
-        gap: 12px;
-      }
-
-      .game-title {
-        font-size: 26px;
-      }
-
-      #gameCanvas {
-        width: 340px;
-        height: 340px;
-      }
-
-      .info-bar {
-        padding: 10px 16px;
-        gap: 10px;
-        flex-wrap: wrap;
-        justify-content: center;
-      }
-
-      .info-item {
-        font-size: 13px;
-      }
-
-      .info-item .value {
-        font-size: 16px;
-        min-width: 30px;
-      }
-
-      .controls-hint {
-        flex-wrap: wrap;
-        gap: 12px;
-        font-size: 12px;
-      }
-
-      .modal-content {
-        padding: 36px 24px 32px;
-      }
-
-      .modal-title {
-        font-size: 28px;
-      }
-
-      .modal-stats {
-        flex-direction: column;
-        gap: 12px;
-        align-items: center;
-      }
-
-      .modal-stat {
-        min-width: 160px;
-        padding: 12px 20px;
-      }
+      .game-wrapper { padding: 10px; gap: 10px; }
+      .game-title { font-size: 24px; }
+      #gameCanvas { width: 340px; height: 340px; }
+      .info-bar { padding: 8px 14px; gap: 8px; flex-wrap: wrap; justify-content: center; }
+      .info-item { font-size: 12px; }
+      .info-item .value { font-size: 15px; min-width: 26px; }
+      .controls-hint { flex-wrap: wrap; gap: 10px; font-size: 11px; }
+      .modal-content { padding: 30px 20px 24px; }
+      .modal-title { font-size: 26px; }
+      .modal-stats { flex-direction: column; gap: 10px; align-items: center; }
+      .modal-stat { min-width: 140px; padding: 10px 16px; }
+      .mode-selector { flex-direction: row; gap: 8px; }
+      .mode-option { max-width: 90px; padding: 10px 6px; }
+      .mode-option .mode-icon { font-size: 22px; }
+      .mode-option .mode-name { font-size: 12px; }
     }
 
     @media (max-width: 380px) {
-      #gameCanvas {
-        width: 290px;
-        height: 290px;
-      }
+      #gameCanvas { width: 290px; height: 290px; }
     }
   </style>
 </head>
@@ -424,10 +468,13 @@
         <span class="label">时长</span>
         <span class="value timer" id="timerDisplay">0s</span>
       </div>
+      <span class="value mode-tag" id="modeTag"></span>
+      <span class="value level-tag" id="levelTag" style="display:none">Lv.1</span>
     </div>
 
     <div class="canvas-container">
       <canvas id="gameCanvas" width="540" height="540"></canvas>
+      <div class="wrap-indicator" id="wrapIndicator">↻</div>
     </div>
 
     <div class="controls-hint">
@@ -436,12 +483,12 @@
         <span class="key-badge">A</span>
         <span class="key-badge">S</span>
         <span class="key-badge">D</span>
-        <span style="color:rgba(255,255,255,0.3);margin-left:4px;">方向</span>
+        <span style="color:rgba(255,255,255,0.25);margin-left:3px;">方向</span>
       </div>
       <div class="hint-divider"></div>
       <div class="key-group">
         <span class="key-badge space accent">SPACE</span>
-        <span style="color:rgba(255,255,255,0.3);">加速</span>
+        <span style="color:rgba(255,255,255,0.25);">加速</span>
       </div>
     </div>
   </div>
@@ -452,12 +499,29 @@
     <div class="modal-content">
       <span class="modal-icon">🐍</span>
       <div class="modal-title">贪吃蛇</div>
-      <div class="modal-subtitle">
-        用键盘方向键控制小蛇<br>吃掉食物，不断成长！
+      <div class="modal-subtitle">选择游戏模式开始</div>
+
+      <div class="mode-selector">
+        <div class="mode-option selected" data-mode="classic">
+          <span class="mode-icon">🎯</span>
+          <span class="mode-name">经典</span>
+          <span class="mode-desc">碰墙即死<br>原汁原味</span>
+        </div>
+        <div class="mode-option" data-mode="endless">
+          <span class="mode-icon">♾️</span>
+          <span class="mode-name">无尽</span>
+          <span class="mode-desc">穿墙穿越<br>速度渐增</span>
+        </div>
+        <div class="mode-option" data-mode="level">
+          <span class="mode-icon">🏆</span>
+          <span class="mode-name">闯关</span>
+          <span class="mode-desc">逐关挑战<br>目标闯关</span>
+        </div>
       </div>
+
       <button class="btn-primary" id="startBtn">
         <span>开始游戏</span>
-        <span style="font-size:22px;">▶</span>
+        <span style="font-size:20px;">▶</span>
       </button>
       <div class="start-hint">
         或按 <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> 开始
@@ -486,10 +550,19 @@
           <div class="stat-value duration" id="finalDuration">0s</div>
         </div>
       </div>
-      <button class="btn-primary" id="restartBtn">
+      <div id="finalLevelInfo" class="level-up-badge" style="display:none">闯关至 Lv.3</div>
+      <button class="btn-primary" id="restartBtn" style="margin-top:12px">
         <span>再来一局</span>
-        <span style="font-size:22px;">↻</span>
+        <span style="font-size:20px;">↻</span>
       </button>
+    </div>
+  </div>
+
+  <!-- Level Up Toast -->
+  <div style="position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:50;pointer-events:none;opacity:0;transition:all 0.5s ease;" id="levelUpToast">
+    <div style="font-size:48px;color:#f5d300;text-shadow:0 0 40px rgba(245,211,0,0.6);font-weight:700;text-align:center;">
+      <div>⬆ LEVEL UP ⬆</div>
+      <div style="font-size:20px;margin-top:4px;" id="levelUpNumber">Lv.2</div>
     </div>
   </div>
 
@@ -499,7 +572,6 @@
       const canvas = document.getElementById('particleCanvas');
       const ctx = canvas.getContext('2d');
       let particles = [];
-      let animId;
 
       function resize() {
         canvas.width = window.innerWidth;
@@ -537,7 +609,7 @@
       function animate() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         particles.forEach(p => { p.update(); p.draw(); });
-        animId = requestAnimationFrame(animate);
+        requestAnimationFrame(animate);
       }
       animate();
     })();
@@ -546,21 +618,26 @@
     const AudioManager = {
       ctx: null,
       bgGain: null,
+      masterGain: null,
       isPlaying: false,
       bgTimeout: null,
 
       init() {
         if (this.ctx) return;
         this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.masterGain = this.ctx.createGain();
+        this.masterGain.gain.value = 0.15;
+        this.masterGain.connect(this.ctx.destination);
         this.bgGain = this.ctx.createGain();
         this.bgGain.gain.value = 0.06;
-        this.bgGain.connect(this.ctx.destination);
+        this.bgGain.connect(this.masterGain);
       },
 
       noteToFreq(note) {
-        const notes = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
-          A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46,
-          G5: 783.99, A5: 880.00 };
+        const notes = { C3: 130.81, D3: 146.83, E3: 164.81, F3: 174.61, G3: 196.00,
+          A3: 220.00, B3: 246.94, C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23,
+          G4: 392.00, A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25,
+          F5: 698.46, G5: 783.99, A5: 880.00, B5: 987.77 };
         return notes[note] || 440;
       },
 
@@ -577,11 +654,23 @@
         osc.stop(this.ctx.currentTime + duration);
       },
 
+      // Classic snake melody
       melody: [
         'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'D4',
         'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'D4',
         'E4', 'G4', 'C5', 'E5', 'D5', 'C5', 'G4', 'E4',
         'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'C4',
+      ],
+
+      // Bass line for variety
+      bassLine: [
+        'C3', null, 'G3', null, 'A3', null, 'F3', null,
+        'C3', null, 'G3', null, 'A3', null, 'G3', null,
+      ],
+
+      // Level-up fanfare melody
+      levelUpFanfare: [
+        'C5', 'E5', 'G5', 'C6', 'G5', 'E5', 'C5', 'G4',
       ],
 
       startBgMusic() {
@@ -591,12 +680,25 @@
         const NOTE_DURATION = 0.18;
         const GAP = 0.02;
         let index = 0;
+        let bassIndex = 0;
 
         const playNext = () => {
           if (!this.isPlaying) return;
+
           const note = this.melody[index % this.melody.length];
           const freq = this.noteToFreq(note);
           this.playNote(freq, NOTE_DURATION, 'square', 0.08, this.bgGain);
+
+          // Play bass note every 4 notes
+          if (index % 4 === 0) {
+            const bassNote = this.bassLine[bassIndex % this.bassLine.length];
+            if (bassNote) {
+              const bassFreq = this.noteToFreq(bassNote);
+              this.playNote(bassFreq, NOTE_DURATION * 2, 'triangle', 0.06, this.bgGain);
+            }
+            bassIndex++;
+          }
+
           index++;
           this.bgTimeout = setTimeout(playNext, (NOTE_DURATION + GAP) * 1000);
         };
@@ -628,6 +730,58 @@
         });
       },
 
+      playWrapSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [392.00, 523.25, 659.25].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          gain.gain.setValueAtTime(0.06, now + i * 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.08 + 0.15);
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.08);
+          osc.stop(now + i * 0.08 + 0.15);
+        });
+      },
+
+      playLevelUpSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        this.levelUpFanfare.forEach((note, i) => {
+          const freq = this.noteToFreq(note);
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          gain.gain.setValueAtTime(0.1, now + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 0.18);
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.12);
+          osc.stop(now + i * 0.12 + 0.18);
+        });
+      },
+
+      playSpeedUpSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [440.00, 554.37, 659.25].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          gain.gain.setValueAtTime(0.05, now + i * 0.07);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.07 + 0.1);
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.07);
+          osc.stop(now + i * 0.07 + 0.1);
+        });
+      },
+
       playGameOverSound() {
         this.init();
         const now = this.ctx.currentTime;
@@ -654,22 +808,47 @@
     const CELL_SIZE = canvas.width / GRID_SIZE;
     const NORMAL_INTERVAL = 150;
     const FAST_INTERVAL = 60;
+    const ENDLESS_SPEED_STEP = 5;
+    const ENDLESS_INTERVAL_MIN = 70;
 
-    let snake, direction, nextDirection, food, score, highScore;
+    let snake, direction, food, score, highScore;
     let isRunning, isAccelerating, gameLoop, gameStartTime, timerInterval;
     let pendingDirection = null;
     let eatAnimation = 0;
+    let gameMode = 'classic';
+    let currentLevel = 1;
+    let foodEatenInLevel = 0;
+    let foodToNextLevel = 5;
+    let endlessSpeedCounter = 0;
+    let currentInterval = NORMAL_INTERVAL;
+    let justWrapped = false;
+    let wrapTimer = null;
 
     const scoreDisplay = document.getElementById('scoreDisplay');
     const highScoreDisplay = document.getElementById('highScoreDisplay');
     const timerDisplay = document.getElementById('timerDisplay');
+    const modeTag = document.getElementById('modeTag');
+    const levelTag = document.getElementById('levelTag');
+    const levelUpToast = document.getElementById('levelUpToast');
+    const levelUpNumber = document.getElementById('levelUpNumber');
+    const wrapIndicator = document.getElementById('wrapIndicator');
+    const finalLevelInfo = document.getElementById('finalLevelInfo');
 
-    function loadHighScore() {
-      return parseInt(localStorage.getItem('snakeHighScore')) || 0;
+    function loadHighScore(mode) {
+      const key = `snakeHighScore_${mode}`;
+      return parseInt(localStorage.getItem(key)) || 0;
     }
 
-    function saveHighScore(val) {
-      localStorage.setItem('snakeHighScore', val);
+    function saveHighScore(val, mode) {
+      const key = `snakeHighScore_${mode}`;
+      localStorage.setItem(key, val);
+    }
+
+    function getLevelFoodTarget(level) {
+      if (level === 1) return 5;
+      if (level === 2) return 8;
+      if (level === 3) return 10;
+      return 10 + (level - 3) * 2;
     }
 
     function initGame() {
@@ -680,13 +859,32 @@
         { x: mid - 2, y: mid },
       ];
       direction = { x: 1, y: 0 };
-      nextDirection = { x: 1, y: 0 };
       pendingDirection = null;
       score = 0;
-      highScore = loadHighScore();
+      highScore = loadHighScore(gameMode);
       isAccelerating = false;
       eatAnimation = 0;
+      justWrapped = false;
+      currentInterval = NORMAL_INTERVAL;
+
+      if (gameMode === 'level') {
+        currentLevel = 1;
+        foodEatenInLevel = 0;
+        foodToNextLevel = getLevelFoodTarget(1);
+        levelTag.textContent = `Lv.${currentLevel}`;
+        levelTag.style.display = 'inline';
+      } else {
+        levelTag.style.display = 'none';
+        currentLevel = 1;
+        foodEatenInLevel = 0;
+      }
+
+      if (gameMode === 'endless') {
+        endlessSpeedCounter = 0;
+      }
+
       updateScoreUI();
+      updateModeTag();
       generateFood();
       draw();
     }
@@ -705,6 +903,11 @@
     function updateScoreUI() {
       scoreDisplay.textContent = score;
       highScoreDisplay.textContent = highScore;
+    }
+
+    function updateModeTag() {
+      const labels = { classic: '经典', endless: '无尽', level: '闯关' };
+      modeTag.textContent = labels[gameMode] || '';
     }
 
     function updateTimerUI() {
@@ -736,22 +939,50 @@
       return m > 0 ? `${m}m${s}s` : `${s}s`;
     }
 
+    function showWrapEffect() {
+      wrapIndicator.classList.add('show');
+      clearTimeout(wrapTimer);
+      wrapTimer = setTimeout(() => wrapIndicator.classList.remove('show'), 400);
+    }
+
+    function showLevelUp() {
+      levelUpNumber.textContent = `Lv.${currentLevel}`;
+      levelUpToast.style.opacity = '1';
+      setTimeout(() => {
+        levelUpToast.style.opacity = '0';
+      }, 1200);
+    }
+
     function gameTick() {
       if (pendingDirection) {
         direction = { ...pendingDirection };
         pendingDirection = null;
       }
 
-      const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+      let head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
 
+      // Wrap-around or wall collision depending on mode
       if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
-        gameOver();
-        return;
-      }
-
-      if (snake.some(s => s.x === head.x && s.y === head.y)) {
-        gameOver();
-        return;
+        if (gameMode === 'classic') {
+          gameOver();
+          return;
+        }
+        // Wrap around
+        const wrapped = { x: ((head.x % GRID_SIZE) + GRID_SIZE) % GRID_SIZE, y: ((head.y % GRID_SIZE) + GRID_SIZE) % GRID_SIZE };
+        if (snake.some(s => s.x === wrapped.x && s.y === wrapped.y)) {
+          gameOver();
+          return;
+        }
+        head = wrapped;
+        justWrapped = true;
+        showWrapEffect();
+        AudioManager.playWrapSound();
+      } else {
+        if (snake.some(s => s.x === head.x && s.y === head.y)) {
+          gameOver();
+          return;
+        }
+        justWrapped = false;
       }
 
       snake.unshift(head);
@@ -761,6 +992,39 @@
         updateScoreUI();
         AudioManager.playEatSound();
         eatAnimation = 1;
+
+        // Level mode logic
+        if (gameMode === 'level') {
+          foodEatenInLevel++;
+          if (foodEatenInLevel >= foodToNextLevel) {
+            currentLevel++;
+            foodEatenInLevel = 0;
+            foodToNextLevel = getLevelFoodTarget(currentLevel);
+            levelTag.textContent = `Lv.${currentLevel}`;
+            showLevelUp();
+            AudioManager.playLevelUpSound();
+            // Speed up per level
+            currentInterval = Math.max(90, NORMAL_INTERVAL - (currentLevel - 1) * 8);
+            if (gameLoop) {
+              clearInterval(gameLoop);
+              gameLoop = setInterval(gameTick, currentInterval);
+            }
+          }
+        }
+
+        // Endless mode speed logic
+        if (gameMode === 'endless') {
+          endlessSpeedCounter++;
+          if (endlessSpeedCounter % 5 === 0) {
+            currentInterval = Math.max(ENDLESS_INTERVAL_MIN, currentInterval - 10);
+            if (gameLoop) {
+              clearInterval(gameLoop);
+              gameLoop = setInterval(gameTick, isAccelerating ? FAST_INTERVAL : currentInterval);
+            }
+            AudioManager.playSpeedUpSound();
+          }
+        }
+
         generateFood();
       } else {
         snake.pop();
@@ -781,9 +1045,11 @@
       AudioManager.stopBgMusic();
       AudioManager.playGameOverSound();
 
+      const finalDuration = getDuration();
+
       if (score > highScore) {
         highScore = score;
-        saveHighScore(highScore);
+        saveHighScore(highScore, gameMode);
         highScoreDisplay.textContent = highScore;
         document.getElementById('gameOverMsg').textContent = '🎉 新纪录！太棒了！';
       } else {
@@ -792,7 +1058,14 @@
 
       document.getElementById('finalScore').textContent = score;
       document.getElementById('finalBest').textContent = highScore;
-      document.getElementById('finalDuration').textContent = getDuration();
+      document.getElementById('finalDuration').textContent = finalDuration;
+
+      if (gameMode === 'level') {
+        finalLevelInfo.textContent = `闯关至 Lv.${currentLevel}`;
+        finalLevelInfo.style.display = 'inline-block';
+      } else {
+        finalLevelInfo.style.display = 'none';
+      }
 
       setTimeout(() => {
         document.getElementById('gameOverModal').classList.add('active');
@@ -871,8 +1144,6 @@
         ctx.shadowBlur = 0;
 
         if (isHead) {
-          const eyeSize = 3;
-          const eyeOffset = 6;
           let ex1, ey1, ex2, ey2;
           if (direction.x === 1) {
             ex1 = x + CELL_SIZE - 8; ey1 = y + 6;
@@ -889,10 +1160,10 @@
           }
           ctx.fillStyle = '#fff';
           ctx.beginPath();
-          ctx.arc(ex1, ey1, eyeSize, 0, Math.PI * 2);
+          ctx.arc(ex1, ey1, 3, 0, Math.PI * 2);
           ctx.fill();
           ctx.beginPath();
-          ctx.arc(ex2, ey2, eyeSize, 0, Math.PI * 2);
+          ctx.arc(ex2, ey2, 3, 0, Math.PI * 2);
           ctx.fill();
           ctx.fillStyle = '#0f0c29';
           ctx.beginPath();
@@ -930,14 +1201,39 @@
       ctx.beginPath();
       ctx.arc(x - 3, y - 3, baseRadius * pulse * 0.3, 0, Math.PI * 2);
       ctx.fill();
+
+      // Level mode: show progress ring
+      if (gameMode === 'level') {
+        const progress = foodEatenInLevel / foodToNextLevel;
+        ctx.strokeStyle = 'rgba(245, 211, 0, 0.3)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x, y, baseRadius * pulse + 4, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * progress);
+        ctx.stroke();
+
+        ctx.fillStyle = 'rgba(245, 211, 0, 0.5)';
+        ctx.font = '9px Fredoka, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(`${foodEatenInLevel}/${foodToNextLevel}`, x, y + baseRadius * pulse + 14);
+      }
     }
 
     function drawAccelIndicator() {
       if (isAccelerating && isRunning) {
-        ctx.fillStyle = 'rgba(0, 217, 245, 0.12)';
+        ctx.fillStyle = 'rgba(0, 217, 245, 0.1)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
       }
     }
+
+    // ==================== Mode Selection ====================
+    document.querySelectorAll('.mode-option').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.mode-option').forEach(o => o.classList.remove('selected'));
+        el.classList.add('selected');
+        gameMode = el.dataset.mode;
+      });
+    });
 
     // ==================== Input Handling ====================
     document.addEventListener('keydown', (e) => {
@@ -982,7 +1278,7 @@
           isAccelerating = false;
           if (gameLoop) {
             clearInterval(gameLoop);
-            gameLoop = setInterval(gameTick, NORMAL_INTERVAL);
+            gameLoop = setInterval(gameTick, currentInterval || NORMAL_INTERVAL);
           }
         }
       }
@@ -999,8 +1295,10 @@
     });
 
     // ==================== Initial Draw ====================
-    highScore = loadHighScore();
+    highScore = loadHighScore('classic');
     highScoreDisplay.textContent = highScore;
+    gameMode = 'classic';
+    updateModeTag();
     initGame();
   </script>
 </body>
