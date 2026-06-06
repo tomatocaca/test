@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Snake Game - 贪吃蛇</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Fredoka', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+      overflow: hidden;
+      position: relative;
+    }
+
+    #particleCanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .game-wrapper {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+    }
+
+    .game-title {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00f5a0, #00d9f5, #f5a0ff);
+      background-size: 200% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: titleShine 3s ease-in-out infinite;
+      letter-spacing: 4px;
+      text-shadow: none;
+      filter: drop-shadow(0 0 20px rgba(0, 245, 160, 0.3));
+    }
+
+    @keyframes titleShine {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    .info-bar {
+      display: flex;
+      gap: 20px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 12px 28px;
+      width: 100%;
+      max-width: 540px;
+      justify-content: space-between;
+    }
+
+    .info-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .info-item .label {
+      color: rgba(255, 255, 255, 0.5);
+      font-weight: 400;
+      font-size: 13px;
+    }
+
+    .info-item .value {
+      color: #00f5a0;
+      font-weight: 600;
+      font-size: 20px;
+      min-width: 40px;
+      text-align: right;
+    }
+
+    .info-item .value.high-score {
+      color: #f5d300;
+    }
+
+    .info-item .value.timer {
+      color: #00d9f5;
+    }
+
+    .canvas-container {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow:
+        0 0 40px rgba(0, 245, 160, 0.15),
+        0 0 80px rgba(0, 217, 245, 0.08),
+        inset 0 0 60px rgba(0, 0, 0, 0.3);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+    }
+
+    #gameCanvas {
+      display: block;
+      width: 540px;
+      height: 540px;
+    }
+
+    .controls-hint {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
+      color: rgba(255, 255, 255, 0.4);
+      font-size: 13px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    .key-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .key-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      padding: 3px 10px;
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, 0.6);
+      font-family: 'Fredoka', sans-serif;
+      min-width: 28px;
+    }
+
+    .key-badge.space {
+      padding: 3px 18px;
+    }
+
+    .key-badge.accent {
+      color: #00f5a0;
+      border-color: rgba(0, 245, 160, 0.3);
+    }
+
+    .hint-divider {
+      width: 1px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    /* Modal styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal-content {
+      position: relative;
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 28px;
+      padding: 48px 40px 40px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      transform: scale(0.85) translateY(20px);
+      opacity: 0;
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow:
+        0 0 60px rgba(0, 245, 160, 0.1),
+        0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+    }
+
+    .modal-icon {
+      font-size: 56px;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .modal-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, #00f5a0, #00d9f5);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .modal-subtitle {
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.6);
+      margin-bottom: 28px;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    .modal-stats {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-bottom: 32px;
+    }
+
+    .modal-stat {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 14px 24px;
+      min-width: 110px;
+    }
+
+    .modal-stat .stat-label {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 500;
+    }
+
+    .modal-stat .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 4px;
+    }
+
+    .modal-stat .stat-value.score {
+      color: #00f5a0;
+    }
+
+    .modal-stat .stat-value.best {
+      color: #f5d300;
+    }
+
+    .modal-stat .stat-value.duration {
+      color: #00d9f5;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #00f5a0, #00d9f5);
+      border: none;
+      border-radius: 14px;
+      padding: 14px 40px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0f0c29;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 20px rgba(0, 245, 160, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 8px 30px rgba(0, 245, 160, 0.4);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0) scale(0.98);
+    }
+
+    .start-hint {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-top: 16px;
+      font-weight: 400;
+    }
+
+    .start-hint kbd {
+      display: inline-block;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      padding: 1px 8px;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.5);
+    }
+
+    @media (max-width: 600px) {
+      .game-wrapper {
+        padding: 12px;
+        gap: 12px;
+      }
+
+      .game-title {
+        font-size: 26px;
+      }
+
+      #gameCanvas {
+        width: 340px;
+        height: 340px;
+      }
+
+      .info-bar {
+        padding: 10px 16px;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+      }
+
+      .info-item {
+        font-size: 13px;
+      }
+
+      .info-item .value {
+        font-size: 16px;
+        min-width: 30px;
+      }
+
+      .controls-hint {
+        flex-wrap: wrap;
+        gap: 12px;
+        font-size: 12px;
+      }
+
+      .modal-content {
+        padding: 36px 24px 32px;
+      }
+
+      .modal-title {
+        font-size: 28px;
+      }
+
+      .modal-stats {
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+      }
+
+      .modal-stat {
+        min-width: 160px;
+        padding: 12px 20px;
+      }
+    }
+
+    @media (max-width: 380px) {
+      #gameCanvas {
+        width: 290px;
+        height: 290px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+
+  <div class="game-wrapper">
+    <div class="game-title">S N A K E</div>
+
+    <div class="info-bar">
+      <div class="info-item">
+        <span class="label">分数</span>
+        <span class="value" id="scoreDisplay">0</span>
+      </div>
+      <div class="info-item">
+        <span class="label">最高</span>
+        <span class="value high-score" id="highScoreDisplay">0</span>
+      </div>
+      <div class="info-item">
+        <span class="label">时长</span>
+        <span class="value timer" id="timerDisplay">0s</span>
+      </div>
+    </div>
+
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="540" height="540"></canvas>
+    </div>
+
+    <div class="controls-hint">
+      <div class="key-group">
+        <span class="key-badge">W</span>
+        <span class="key-badge">A</span>
+        <span class="key-badge">S</span>
+        <span class="key-badge">D</span>
+        <span style="color:rgba(255,255,255,0.3);margin-left:4px;">方向</span>
+      </div>
+      <div class="hint-divider"></div>
+      <div class="key-group">
+        <span class="key-badge space accent">SPACE</span>
+        <span style="color:rgba(255,255,255,0.3);">加速</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Start Modal -->
+  <div class="modal-overlay active" id="startModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <span class="modal-icon">🐍</span>
+      <div class="modal-title">贪吃蛇</div>
+      <div class="modal-subtitle">
+        用键盘方向键控制小蛇<br>吃掉食物，不断成长！
+      </div>
+      <button class="btn-primary" id="startBtn">
+        <span>开始游戏</span>
+        <span style="font-size:22px;">▶</span>
+      </button>
+      <div class="start-hint">
+        或按 <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> 开始
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div class="modal-overlay" id="gameOverModal">
+    <div class="modal-backdrop"></div>
+    <div class="modal-content">
+      <span class="modal-icon">💫</span>
+      <div class="modal-title">游戏结束</div>
+      <div class="modal-subtitle" id="gameOverMsg">再试一次吧！</div>
+      <div class="modal-stats">
+        <div class="modal-stat">
+          <div class="stat-label">得分</div>
+          <div class="stat-value score" id="finalScore">0</div>
+        </div>
+        <div class="modal-stat">
+          <div class="stat-label">最高纪录</div>
+          <div class="stat-value best" id="finalBest">0</div>
+        </div>
+        <div class="modal-stat">
+          <div class="stat-label">游戏时长</div>
+          <div class="stat-value duration" id="finalDuration">0s</div>
+        </div>
+      </div>
+      <button class="btn-primary" id="restartBtn">
+        <span>再来一局</span>
+        <span style="font-size:22px;">↻</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== Particles Background ====================
+    (function initParticles() {
+      const canvas = document.getElementById('particleCanvas');
+      const ctx = canvas.getContext('2d');
+      let particles = [];
+      let animId;
+
+      function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      }
+      window.addEventListener('resize', resize);
+      resize();
+
+      class Particle {
+        constructor() { this.reset(); }
+        reset() {
+          this.x = Math.random() * canvas.width;
+          this.y = Math.random() * canvas.height;
+          this.size = Math.random() * 2.5 + 0.5;
+          this.speedX = (Math.random() - 0.5) * 0.3;
+          this.speedY = (Math.random() - 0.5) * 0.3;
+          this.opacity = Math.random() * 0.5 + 0.1;
+        }
+        update() {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.x < 0 || this.x > canvas.width) this.speedX *= -1;
+          if (this.y < 0 || this.y > canvas.height) this.speedY *= -1;
+        }
+        draw() {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(0, 245, 160, ${this.opacity})`;
+          ctx.fill();
+        }
+      }
+
+      for (let i = 0; i < 80; i++) particles.push(new Particle());
+
+      function animate() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => { p.update(); p.draw(); });
+        animId = requestAnimationFrame(animate);
+      }
+      animate();
+    })();
+
+    // ==================== Audio Manager ====================
+    const AudioManager = {
+      ctx: null,
+      bgGain: null,
+      isPlaying: false,
+      bgTimeout: null,
+
+      init() {
+        if (this.ctx) return;
+        this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        this.bgGain = this.ctx.createGain();
+        this.bgGain.gain.value = 0.06;
+        this.bgGain.connect(this.ctx.destination);
+      },
+
+      noteToFreq(note) {
+        const notes = { C4: 261.63, D4: 293.66, E4: 329.63, F4: 349.23, G4: 392.00,
+          A4: 440.00, B4: 493.88, C5: 523.25, D5: 587.33, E5: 659.25, F5: 698.46,
+          G5: 783.99, A5: 880.00 };
+        return notes[note] || 440;
+      },
+
+      playNote(freq, duration, type, gainValue, dest) {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type || 'square';
+        gain.gain.setValueAtTime(gainValue || 0.1, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + duration);
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        gain.connect(dest || this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+      },
+
+      melody: [
+        'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'D4',
+        'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'D4',
+        'E4', 'G4', 'C5', 'E5', 'D5', 'C5', 'G4', 'E4',
+        'C4', 'E4', 'G4', 'C5', 'B4', 'G4', 'E4', 'C4',
+      ],
+
+      startBgMusic() {
+        if (this.isPlaying) return;
+        this.init();
+        this.isPlaying = true;
+        const NOTE_DURATION = 0.18;
+        const GAP = 0.02;
+        let index = 0;
+
+        const playNext = () => {
+          if (!this.isPlaying) return;
+          const note = this.melody[index % this.melody.length];
+          const freq = this.noteToFreq(note);
+          this.playNote(freq, NOTE_DURATION, 'square', 0.08, this.bgGain);
+          index++;
+          this.bgTimeout = setTimeout(playNext, (NOTE_DURATION + GAP) * 1000);
+        };
+        playNext();
+      },
+
+      stopBgMusic() {
+        this.isPlaying = false;
+        if (this.bgTimeout) {
+          clearTimeout(this.bgTimeout);
+          this.bgTimeout = null;
+        }
+      },
+
+      playEatSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 659.25, 783.99].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'square';
+          gain.gain.setValueAtTime(0.08, now + i * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.12);
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.06);
+          osc.stop(now + i * 0.06 + 0.12);
+        });
+      },
+
+      playGameOverSound() {
+        this.init();
+        const now = this.ctx.currentTime;
+        [523.25, 466.16, 392.00, 329.63, 261.63].forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          gain.gain.setValueAtTime(0.06, now + i * 0.15);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.15 + 0.3);
+          osc.frequency.value = freq;
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + i * 0.15);
+          osc.stop(now + i * 0.15 + 0.3);
+        });
+      }
+    };
+
+    // ==================== Game Logic ====================
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const GRID_SIZE = 20;
+    const CELL_SIZE = canvas.width / GRID_SIZE;
+    const NORMAL_INTERVAL = 150;
+    const FAST_INTERVAL = 60;
+
+    let snake, direction, nextDirection, food, score, highScore;
+    let isRunning, isAccelerating, gameLoop, gameStartTime, timerInterval;
+    let pendingDirection = null;
+    let eatAnimation = 0;
+
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const highScoreDisplay = document.getElementById('highScoreDisplay');
+    const timerDisplay = document.getElementById('timerDisplay');
+
+    function loadHighScore() {
+      return parseInt(localStorage.getItem('snakeHighScore')) || 0;
+    }
+
+    function saveHighScore(val) {
+      localStorage.setItem('snakeHighScore', val);
+    }
+
+    function initGame() {
+      const mid = Math.floor(GRID_SIZE / 2);
+      snake = [
+        { x: mid, y: mid },
+        { x: mid - 1, y: mid },
+        { x: mid - 2, y: mid },
+      ];
+      direction = { x: 1, y: 0 };
+      nextDirection = { x: 1, y: 0 };
+      pendingDirection = null;
+      score = 0;
+      highScore = loadHighScore();
+      isAccelerating = false;
+      eatAnimation = 0;
+      updateScoreUI();
+      generateFood();
+      draw();
+    }
+
+    function generateFood() {
+      let pos;
+      do {
+        pos = {
+          x: Math.floor(Math.random() * GRID_SIZE),
+          y: Math.floor(Math.random() * GRID_SIZE),
+        };
+      } while (snake.some(s => s.x === pos.x && s.y === pos.y));
+      food = pos;
+    }
+
+    function updateScoreUI() {
+      scoreDisplay.textContent = score;
+      highScoreDisplay.textContent = highScore;
+    }
+
+    function updateTimerUI() {
+      if (!gameStartTime) return;
+      const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+      const m = Math.floor(elapsed / 60);
+      const s = elapsed % 60;
+      timerDisplay.textContent = m > 0 ? `${m}m${s}s` : `${s}s`;
+    }
+
+    function startTimer() {
+      gameStartTime = Date.now();
+      timerDisplay.textContent = '0s';
+      timerInterval = setInterval(updateTimerUI, 200);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function getDuration() {
+      if (!gameStartTime) return '0s';
+      const elapsed = Math.floor((Date.now() - gameStartTime) / 1000);
+      const m = Math.floor(elapsed / 60);
+      const s = elapsed % 60;
+      return m > 0 ? `${m}m${s}s` : `${s}s`;
+    }
+
+    function gameTick() {
+      if (pendingDirection) {
+        direction = { ...pendingDirection };
+        pendingDirection = null;
+      }
+
+      const head = { x: snake[0].x + direction.x, y: snake[0].y + direction.y };
+
+      if (head.x < 0 || head.x >= GRID_SIZE || head.y < 0 || head.y >= GRID_SIZE) {
+        gameOver();
+        return;
+      }
+
+      if (snake.some(s => s.x === head.x && s.y === head.y)) {
+        gameOver();
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        updateScoreUI();
+        AudioManager.playEatSound();
+        eatAnimation = 1;
+        generateFood();
+      } else {
+        snake.pop();
+      }
+
+      if (eatAnimation > 0) eatAnimation -= 0.05;
+
+      draw();
+    }
+
+    function gameOver() {
+      isRunning = false;
+      if (gameLoop) {
+        clearInterval(gameLoop);
+        gameLoop = null;
+      }
+      stopTimer();
+      AudioManager.stopBgMusic();
+      AudioManager.playGameOverSound();
+
+      if (score > highScore) {
+        highScore = score;
+        saveHighScore(highScore);
+        highScoreDisplay.textContent = highScore;
+        document.getElementById('gameOverMsg').textContent = '🎉 新纪录！太棒了！';
+      } else {
+        document.getElementById('gameOverMsg').textContent = '别灰心，再试一次！';
+      }
+
+      document.getElementById('finalScore').textContent = score;
+      document.getElementById('finalBest').textContent = highScore;
+      document.getElementById('finalDuration').textContent = getDuration();
+
+      setTimeout(() => {
+        document.getElementById('gameOverModal').classList.add('active');
+      }, 400);
+    }
+
+    function startGame() {
+      document.getElementById('startModal').classList.remove('active');
+      document.getElementById('gameOverModal').classList.remove('active');
+
+      initGame();
+      isRunning = true;
+      startTimer();
+      AudioManager.startBgMusic();
+
+      if (gameLoop) clearInterval(gameLoop);
+      gameLoop = setInterval(gameTick, NORMAL_INTERVAL);
+    }
+
+    // ==================== Rendering ====================
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawGrid();
+      drawFood();
+      drawSnake();
+      drawAccelIndicator();
+    }
+
+    function drawGrid() {
+      for (let y = 0; y < GRID_SIZE; y++) {
+        for (let x = 0; x < GRID_SIZE; x++) {
+          const shade = (x + y) % 2 === 0 ? 'rgba(255,255,255,0.03)' : 'rgba(255,255,255,0.06)';
+          ctx.fillStyle = shade;
+          ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        }
+      }
+    }
+
+    function drawSnake() {
+      snake.forEach((seg, i) => {
+        const t = i / snake.length;
+        const r = Math.round(0 + t * 50);
+        const g = Math.round(245 - t * 120);
+        const b = Math.round(160 - t * 100);
+
+        const x = seg.x * CELL_SIZE;
+        const y = seg.y * CELL_SIZE;
+        const pad = 1;
+        const size = CELL_SIZE - pad * 2;
+
+        const radius = Math.min(6, size / 4);
+        const isHead = i === 0;
+
+        ctx.shadowColor = `rgba(0, 245, 160, ${0.4 - t * 0.3})`;
+        ctx.shadowBlur = isHead ? 18 : 10;
+
+        const gradient = ctx.createLinearGradient(x, y, x + CELL_SIZE, y + CELL_SIZE);
+        gradient.addColorStop(0, `rgb(${r + 20}, ${g}, ${b})`);
+        gradient.addColorStop(1, `rgb(${r}, ${g - 30}, ${b + 40})`);
+        ctx.fillStyle = gradient;
+
+        ctx.beginPath();
+        ctx.moveTo(x + pad + radius, y + pad);
+        ctx.lineTo(x + pad + size - radius, y + pad);
+        ctx.quadraticCurveTo(x + pad + size, y + pad, x + pad + size, y + pad + radius);
+        ctx.lineTo(x + pad + size, y + pad + size - radius);
+        ctx.quadraticCurveTo(x + pad + size, y + pad + size, x + pad + size - radius, y + pad + size);
+        ctx.lineTo(x + pad + radius, y + pad + size);
+        ctx.quadraticCurveTo(x + pad, y + pad + size, x + pad, y + pad + size - radius);
+        ctx.lineTo(x + pad, y + pad + radius);
+        ctx.quadraticCurveTo(x + pad, y + pad, x + pad + radius, y + pad);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        if (isHead) {
+          const eyeSize = 3;
+          const eyeOffset = 6;
+          let ex1, ey1, ex2, ey2;
+          if (direction.x === 1) {
+            ex1 = x + CELL_SIZE - 8; ey1 = y + 6;
+            ex2 = x + CELL_SIZE - 8; ey2 = y + CELL_SIZE - 6;
+          } else if (direction.x === -1) {
+            ex1 = x + 8; ey1 = y + 6;
+            ex2 = x + 8; ey2 = y + CELL_SIZE - 6;
+          } else if (direction.y === -1) {
+            ex1 = x + 6; ey1 = y + 8;
+            ex2 = x + CELL_SIZE - 6; ey2 = y + 8;
+          } else {
+            ex1 = x + 6; ey1 = y + CELL_SIZE - 8;
+            ex2 = x + CELL_SIZE - 6; ey2 = y + CELL_SIZE - 8;
+          }
+          ctx.fillStyle = '#fff';
+          ctx.beginPath();
+          ctx.arc(ex1, ey1, eyeSize, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(ex2, ey2, eyeSize, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#0f0c29';
+          ctx.beginPath();
+          ctx.arc(ex1 + direction.x * 1.2, ey1 + direction.y * 1.2, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.beginPath();
+          ctx.arc(ex2 + direction.x * 1.2, ey2 + direction.y * 1.2, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+    }
+
+    function drawFood() {
+      const x = food.x * CELL_SIZE + CELL_SIZE / 2;
+      const y = food.y * CELL_SIZE + CELL_SIZE / 2;
+      const pulse = 1 + Math.sin(Date.now() / 200) * 0.1;
+      const baseRadius = CELL_SIZE / 2 - 3;
+
+      ctx.shadowColor = 'rgba(245, 80, 120, 0.7)';
+      ctx.shadowBlur = 20 + Math.sin(Date.now() / 200) * 8;
+
+      const gradient = ctx.createRadialGradient(x - 2, y - 2, 0, x, y, baseRadius * pulse);
+      gradient.addColorStop(0, '#ff6b9d');
+      gradient.addColorStop(0.5, '#ff3d7f');
+      gradient.addColorStop(1, '#e91e63');
+      ctx.fillStyle = gradient;
+
+      ctx.beginPath();
+      ctx.arc(x, y, baseRadius * pulse, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.beginPath();
+      ctx.arc(x - 3, y - 3, baseRadius * pulse * 0.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    function drawAccelIndicator() {
+      if (isAccelerating && isRunning) {
+        ctx.fillStyle = 'rgba(0, 217, 245, 0.12)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    // ==================== Input Handling ====================
+    document.addEventListener('keydown', (e) => {
+      const key = e.key.toLowerCase();
+
+      if (key === ' ') {
+        e.preventDefault();
+        if (isRunning) {
+          isAccelerating = true;
+          if (gameLoop) {
+            clearInterval(gameLoop);
+            gameLoop = setInterval(gameTick, FAST_INTERVAL);
+          }
+        }
+        return;
+      }
+
+      let newDir = null;
+      if (key === 'w') newDir = { x: 0, y: -1 };
+      else if (key === 's') newDir = { x: 0, y: 1 };
+      else if (key === 'a') newDir = { x: -1, y: 0 };
+      else if (key === 'd') newDir = { x: 1, y: 0 };
+      else return;
+
+      e.preventDefault();
+
+      if (!isRunning) {
+        AudioManager.init();
+        startGame();
+        return;
+      }
+
+      if (newDir.x !== -direction.x || newDir.y !== -direction.y) {
+        pendingDirection = newDir;
+      }
+    });
+
+    document.addEventListener('keyup', (e) => {
+      if (e.key === ' ') {
+        e.preventDefault();
+        if (isRunning && isAccelerating) {
+          isAccelerating = false;
+          if (gameLoop) {
+            clearInterval(gameLoop);
+            gameLoop = setInterval(gameTick, NORMAL_INTERVAL);
+          }
+        }
+      }
+    });
+
+    document.getElementById('startBtn').addEventListener('click', () => {
+      AudioManager.init();
+      startGame();
+    });
+
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      AudioManager.init();
+      startGame();
+    });
+
+    // ==================== Initial Draw ====================
+    highScore = loadHighScore();
+    highScoreDisplay.textContent = highScore;
+    initGame();
+  </script>
+</body>
+</html>
